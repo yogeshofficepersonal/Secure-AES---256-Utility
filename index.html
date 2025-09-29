@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced AES Crypto Tool</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter Font -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Subtle background gradient for extra flair */
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        }
+        /* Custom scrollbar for textareas */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background-color: #0d9488; /* Teal-600 */
+            border-radius: 4px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background-color: #374151; /* Gray-700 */
+        }
+    </style>
+    <!-- Load CryptoJS library for AES implementation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+</head>
+<body class="min-h-screen p-4 sm:p-8 flex items-center justify-center">
+
+    <div class="w-full max-w-2xl bg-gray-800 p-6 sm:p-10 rounded-2xl shadow-2xl backdrop-blur-sm bg-opacity-95 border border-gray-700">
+        <!-- Header -->
+        <div class="flex items-center space-x-3 mb-2">
+            <!-- Inline SVG Lock Icon -->
+            <svg class="w-8 h-8 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6-6v4h12v-4m-2 0V7a4 4 0 00-8 0v2"></path>
+            </svg>
+            <h1 class="text-4xl font-extrabold text-white">Secure AES-256 Utility</h1>
+        </div>
+        <p class="text-gray-400 mb-6">The standard for modern data security.</p>
+
+        <!-- Notification Area -->
+        <div id="message-box" class="hidden p-3 mb-4 rounded-xl text-sm transition-all duration-300 transform shadow-md" role="alert"></div>
+
+        <!-- Input Section -->
+        <div class="space-y-6">
+            <!-- Secret Key Input -->
+            <div class="relative">
+                <label for="secret-key" class="block text-sm font-medium text-gray-300 mb-1">Secret Key (Your password for the lock)</label>
+                <input type="password" id="secret-key" placeholder="Enter a strong, memorable key (required)"
+                       class="w-full p-4 pr-12 bg-gray-700 text-white font-mono border-2 border-gray-600 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 shadow-md outline-none"
+                       autocomplete="off">
+                <button id="toggle-key-visibility" class="absolute inset-y-0 right-0 flex items-center pr-3 mt-6 text-gray-400 hover:text-teal-400" type="button" aria-label="Toggle key visibility">
+                    <!-- Inline SVG Eye Icon -->
+                    <svg id="eye-open" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: block;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                    <!-- Inline SVG Eye Closed Icon -->
+                    <svg id="eye-closed" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.97 9.97 0 011.082-2.126M10.4 10.4l3.2 3.2m1.947 2.062A8.995 8.995 0 0017 12c-1.274-4.057-5.065-7-9.542-7a9.97 9.97 0 00-3.328.618"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Input Text Area -->
+            <div>
+                <label for="input-text" class="block text-sm font-medium text-gray-300 mb-1">Input Text (Plaintext for Encrypt, Ciphertext for Decrypt)</label>
+                <textarea id="input-text" rows="5" placeholder="Paste your data here..."
+                          class="w-full p-4 bg-gray-700 text-white border-2 border-gray-600 rounded-xl focus:ring-teal-500 focus:border-teal-500 transition duration-150 shadow-md outline-none resize-none"></textarea>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-8 flex flex-col sm:flex-row gap-4">
+            <button id="encrypt-btn"
+                    class="flex-1 py-4 px-6 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-bold rounded-xl shadow-lg transition duration-300 transform hover:scale-[1.03] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-teal-500/50">
+                Encrypt Data
+            </button>
+            <button id="decrypt-btn"
+                    class="flex-1 py-4 px-6 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg transition duration-300 transform hover:scale-[1.03] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-indigo-500/50">
+                Decrypt Data
+            </button>
+        </div>
+
+        <!-- Output Section -->
+        <div class="mt-8">
+            <label for="output-text" class="block text-sm font-medium text-gray-300 mb-1">Output (Encrypted/Decrypted Result)</label>
+            <textarea id="output-text" rows="5" readonly
+                      placeholder="The result will appear here. The ciphertext is a Base64-encoded string."
+                      class="w-full p-4 bg-gray-900 text-teal-300 font-mono border-2 border-gray-700 rounded-xl cursor-text shadow-inner resize-none"></textarea>
+            
+            <div class="flex justify-end mt-3">
+                <button id="copy-btn" class="py-2 px-5 bg-gray-600 hover:bg-gray-500 text-white text-sm font-medium rounded-lg transition duration-150 transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-md">
+                    Copy Result
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const inputTextarea = document.getElementById('input-text');
+        const outputTextarea = document.getElementById('output-text');
+        const keyInput = document.getElementById('secret-key');
+        const encryptBtn = document.getElementById('encrypt-btn');
+        const decryptBtn = document.getElementById('decrypt-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        const messageBox = document.getElementById('message-box');
+        const toggleKeyBtn = document.getElementById('toggle-key-visibility');
+
+        // --- Utility Functions ---
+
+        /**
+         * Shows a message box with enhanced styling.
+         * @param {string} message - The text to display.
+         * @param {string} type - 'success', 'error', or 'info'.
+         */
+        function showMessage(message, type = 'info') {
+            let bgColor, textColor, ringColor;
+
+            switch (type) {
+                case 'success':
+                    bgColor = 'bg-green-600';
+                    textColor = 'text-white';
+                    ringColor = 'ring-green-500';
+                    break;
+                case 'error':
+                    bgColor = 'bg-red-700';
+                    textColor = 'text-white';
+                    ringColor = 'ring-red-600';
+                    break;
+                case 'info':
+                default:
+                    bgColor = 'bg-blue-700';
+                    textColor = 'text-white';
+                    ringColor = 'ring-blue-600';
+                    break;
+            }
+
+            messageBox.textContent = message;
+            messageBox.className = `p-3 mb-4 rounded-xl text-sm ${bgColor} ${textColor} transition-all duration-300 transform shadow-xl focus:ring-4 ${ringColor}`;
+            messageBox.classList.remove('hidden');
+
+            // Hide message after 5 seconds
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 5000);
+        }
+
+        /**
+         * Checks if required inputs (text and key) are present.
+         * @returns {boolean} True if valid, false otherwise.
+         */
+        function validateInputs() {
+            if (!keyInput.value.trim()) {
+                showMessage("🛑 Error: Please enter a Secret Key.", 'error');
+                keyInput.focus();
+                return false;
+            }
+            if (!inputTextarea.value.trim()) {
+                showMessage("✍️ Error: Please enter text to process in the input area.", 'error');
+                inputTextarea.focus();
+                return false;
+            }
+            return true;
+        }
+
+        // --- Core AES Logic (using CryptoJS) ---
+
+        /**
+         * Encrypts the plaintext using AES-256 (CryptoJS default settings).
+         */
+        function encryptText() {
+            if (!validateInputs()) return;
+
+            const plaintext = inputTextarea.value;
+            const key = keyInput.value;
+
+            try {
+                // Encrypts text using AES-256 and returns a base64 string
+                const ciphertext = CryptoJS.AES.encrypt(plaintext, key).toString();
+                outputTextarea.value = ciphertext;
+                showMessage("✅ Encryption successful! Result is Base64 encoded ciphertext.", 'success');
+            } catch (e) {
+                console.error("Encryption Error:", e);
+                showMessage("❌ Encryption failed. Check console for technical details.", 'error');
+            }
+        }
+
+        /**
+         * Decrypts the ciphertext using AES-256.
+         */
+        function decryptText() {
+            if (!validateInputs()) return;
+
+            const ciphertext = inputTextarea.value;
+            const key = keyInput.value;
+
+            try {
+                // Decrypts the ciphertext
+                const bytes = CryptoJS.AES.decrypt(ciphertext, key);
+                // Converts the WordArray to a UTF-8 string
+                const plaintext = bytes.toString(CryptoJS.enc.Utf8);
+
+                if (!plaintext) {
+                    // This means the key was incorrect, or the input was not valid CryptoJS ciphertext.
+                    showMessage("⛔ Decryption failed. Did you use the correct key and a valid ciphertext?", 'error');
+                    outputTextarea.value = "";
+                } else {
+                    outputTextarea.value = plaintext;
+                    showMessage("🔓 Decryption successful! The original message is restored.", 'success');
+                }
+            } catch (e) {
+                console.error("Decryption Error:", e);
+                showMessage("❌ Decryption failed. Ensure the key and input format are correct.", 'error');
+                outputTextarea.value = "";
+            }
+        }
+
+        /**
+         * Copies the content of the output textarea to the clipboard.
+         */
+        function copyOutput() {
+            if (outputTextarea.value) {
+                // Use document.execCommand('copy') for better compatibility in iFrames
+                outputTextarea.select();
+                document.execCommand('copy');
+                showMessage("📋 Copied to clipboard!", 'info');
+            } else {
+                showMessage("💡 Output is empty. Nothing to copy.", 'info');
+            }
+        }
+        
+        /**
+         * Toggles the visibility of the secret key input field.
+         */
+        function toggleKeyVisibility() {
+            const type = keyInput.type === 'password' ? 'text' : 'password';
+            keyInput.type = type;
+
+            const eyeOpen = document.getElementById('eye-open');
+            const eyeClosed = document.getElementById('eye-closed');
+
+            if (type === 'text') {
+                eyeOpen.style.display = 'none';
+                eyeClosed.style.display = 'block';
+                showMessage("Key is now visible.", 'info');
+            } else {
+                eyeOpen.style.display = 'block';
+                eyeClosed.style.display = 'none';
+            }
+        }
+
+        // --- Event Listeners and Initial Setup ---
+        encryptBtn.addEventListener('click', encryptText);
+        decryptBtn.addEventListener('click', decryptText);
+        copyBtn.addEventListener('click', copyOutput);
+        toggleKeyBtn.addEventListener('click', toggleKeyVisibility);
+
+        // Initial setup for the copy button's state
+        function updateCopyButtonState() {
+            const hasContent = outputTextarea.value.length > 0;
+            copyBtn.disabled = !hasContent;
+            // The disabled:opacity-50 class handles the styling
+        }
+
+        updateCopyButtonState();
+        outputTextarea.addEventListener('input', updateCopyButtonState);
+
+    </script>
+</body>
+</html>
