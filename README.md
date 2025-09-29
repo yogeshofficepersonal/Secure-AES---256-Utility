@@ -12,10 +12,9 @@ Key Visibility Toggle: Allows secure entry by hiding the key, with an option to 
 
 Responsive Design: Optimized for use on both desktop and mobile devices.
 
-🚀 Live Demo
+# 🚀 Live Demo
 https://yogeshofficepersonal.github.io/Secure-AES---256-Utility/
 
-View Live Demo on GitHub Pages
 
 # 🚨 Disclaimer
 This project is for educational and demonstrative purposes only. It should not be used for encrypting real-world sensitive or financial data. While AES-256 is secure, the implementation's security relies heavily on the user's environment and key management.
