@@ -13,7 +13,7 @@ Key Visibility Toggle: Allows secure entry by hiding the key, with an option to 
 Responsive Design: Optimized for use on both desktop and mobile devices.
 
 🚀 Live Demo
-You can try the application right now!
+
 
 View Live Demo on GitHub Pages
 
